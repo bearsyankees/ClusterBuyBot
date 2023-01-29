@@ -2,7 +2,7 @@ venv
 credentials.py
 regtest
 20QS
-ughtest
+ughtest.py
 lengthtest.py
 sheets.py
 out.csv
