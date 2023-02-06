@@ -2,6 +2,7 @@
 # Cluster Buy Bot
 This is the code powering the backend of [@ClusterBuyBot](https://twitter.com/ClusterBuyBot) on Twitter.
 
+This  bot tweets out insider trades in real time as they are filed.
 ## Languages/Libraries/Other Tech Used
 
 Python
