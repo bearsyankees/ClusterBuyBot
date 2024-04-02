@@ -7,3 +7,4 @@ protobuf==5.26.1
 redis==4.4.2
 Requests==2.31.0
 tweepy==4.12.1
+lxml
