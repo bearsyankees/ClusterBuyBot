@@ -4,11 +4,22 @@ import redis
 from datetime import datetime
 import re
 import pandas as panda
+import gspread
+from google.oauth2.service_account import Credentials
+import base64
+import json
 
 debug = False  # do certain things when I run locally
 
 r = redis.from_url(environ.get("REDIS_URL"), encoding="utf-8", decode_responses=True)
 
+creds_json = base64.b64decode(environ['GSPREAD_CREDENTIALS']).decode('utf-8')
+creds_dict = json.loads(creds_json)
+
+credentials = Credentials.from_service_account_info(creds_dict, scopes=['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'])
+gc = gspread.authorize(credentials)
+spreadsheet_id = '1Dj2MGJAlWaVPxxuix3vlMMCBq6hVaEpvgL-x_ETDh44'
+sheet = gc.open_by_key(spreadsheet_id).get_worksheet(0)
 
 #get from heroku environment
 CONSUMER_KEY = environ['CONSUMER_KEY']
@@ -21,6 +32,9 @@ BEARER = environ['BEARER']
 client = tweepy.Client(bearer_token=BEARER, consumer_key=CONSUMER_KEY, consumer_secret=CONSUMER_SECRET,
                        access_token=ACCESS_KEY, access_token_secret=ACCESS_SECRET)
 
+def append_to_sheet(data):
+    first_empty_row = len(sheet.get_all_values()) + 1
+    sheet.append_row(data, table_range=f"A{first_empty_row}")
 
 # make the SEC filing date readable to python
 def time_format(time):
@@ -60,6 +74,8 @@ def main():
                 break
             else:
                 print(stock)
+                tweet_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
                 text = (
                     "{} (${}) was bought by {} insiders on {} for a price per share of {}, filed to the SEC at {}. These insiders"
                     " purchased {} shares (a value of {}), increasing their total (combined) amount of shares owned by {}. #stock #stocks\n"
@@ -74,6 +90,8 @@ def main():
                     client.create_tweet(text=thread, in_reply_to_tweet_id=id[0]["id"])
                 else:
                     client.create_tweet(text=text)
+                data_to_append = [stock["Ticker"].strip(), tweet_time]
+                append_to_sheet(data_to_append)
         r.mset({"latest_stock": data[0]["Filing Date"]})
 
 

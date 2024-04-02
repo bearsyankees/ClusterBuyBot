@@ -8,3 +8,4 @@ sheets.py
 out.csv
 regtest.py
 dbtest.py
+client_secret.json
