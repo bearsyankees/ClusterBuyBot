@@ -74,7 +74,7 @@ def main():
                 break
             else:
                 print(stock)
-                tweet_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                tweet_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
                 text = (
                     "{} (${}) was bought by {} insiders on {} for a price per share of {}, filed to the SEC at {}. These insiders"
